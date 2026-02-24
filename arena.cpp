@@ -2,10 +2,32 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <cmath>
+
+
+sf::VertexArray createThickArc(sf::Vector2f center, float radius, float thickness, float startAngle, float endAngle, sf::Color color) {
+    const int points = 15; 
+    sf::VertexArray arc(sf::PrimitiveType::TriangleStrip, points * 2);
+    
+    for (int i = 0; i < points; ++i) {
+        
+        float angle = startAngle + (endAngle - startAngle) * (i / (float)(points - 1));
+        float rad = angle * 3.14159f / 180.0f;
+        sf::Vector2f dir(std::cos(rad), std::sin(rad));
+        
+        
+        arc[i * 2].position = center + dir * radius;
+        arc[i * 2].color = color;
+        
+        
+        arc[i * 2 + 1].position = center + dir * (radius - thickness);
+        arc[i * 2 + 1].color = color;
+    }
+    return arc;
+}
 
 int main() {
-    // 1. Define the Map (The Tile Grid)
-    // '#' = Wall, '-' = Ghost Door, ' ' = Empty space
+    
     std::vector<std::string> levelMap = {
         "############################",
         "#            ##            #",
@@ -40,66 +62,120 @@ int main() {
         "############################"
     };
 
-    // 2. Set up dimensions
-    const float tileSize = 20.0f; // Each block is 20x20 pixels
+    
+    const float tileSize = 20.0f; 
     unsigned int mapWidth = levelMap[0].size();
     unsigned int mapHeight = levelMap.size();
 
-    // 3. Create the SFML 3.0 Window
-    // We calculate window size based on our map size and tile size
+    
     sf::RenderWindow window(sf::VideoMode({mapWidth * (unsigned int)tileSize, 
                                            mapHeight * (unsigned int)tileSize}), 
                             "Pac-Man Arena");
 
-    // Define arcade neon colors
-    sf::Color wallColor(33, 33, 255);    // Arcade Blue
+    
+    sf::Color wallColor(33, 33, 255);   
 
-    // 4. Main Game Loop
+   
     while (window.isOpen()) {
         
-        // --- EVENT HANDLING (SFML 3.0 style) ---
+      
         while (const std::optional<sf::Event> event = window.pollEvent()) {
-            // If the user clicks the 'X' to close the window
+            
             if (event->is<sf::Event::Closed>()) {
                 window.close();
             }
         }
 
-        // --- RENDERING ---
-        window.clear(sf::Color::Black); // Clear previous frame with black background
+       
+        window.clear(sf::Color::Black); 
 
-        // Loop through our rows (Y axis)
+        
         for (unsigned int row = 0; row < mapHeight; ++row) {
-            // Loop through our columns (X axis)
+           
             for (unsigned int col = 0; col < mapWidth; ++col) {
                 
                 char tile = levelMap[row][col];
                 
-                // Calculate where to draw this specific tile on the screen
+               
                 float xPos = col * tileSize;
                 float yPos = row * tileSize;
 
                 if (tile == '#') {
-                    // Draw a Wall
-                    sf::RectangleShape wall(sf::Vector2f({tileSize, tileSize}));
-                    wall.setPosition({xPos, yPos});
-                    // Making it hollow with an outline gives a simple "arcade" look
-                    wall.setFillColor(sf::Color::Black);
-                    wall.setOutlineThickness(-2.0f); // Negative draws inward
-                    wall.setOutlineColor(wallColor);
-                    window.draw(wall);
-                } 
+                    float lineThickness = 2.0f;
+                    float cornerRadius = 8.0f;
+
+                    
+                    bool openTop = (row > 0 && levelMap[row - 1][col] != '#');
+                    bool openBottom = (row < mapHeight - 1 && levelMap[row + 1][col] != '#');
+                    bool openLeft = (col > 0 && levelMap[row][col - 1] != '#');
+                    bool openRight = (col < mapWidth - 1 && levelMap[row][col + 1] != '#');
+
+                   
+                    if (openTop) {
+                        float startX = xPos + (openLeft ? cornerRadius : 0);
+                        float width = tileSize - (openLeft ? cornerRadius : 0) - (openRight ? cornerRadius : 0);
+                        sf::RectangleShape line(sf::Vector2f({width, lineThickness}));
+                        line.setPosition({startX, yPos});
+                        line.setFillColor(wallColor);
+                        window.draw(line);
+                    }
+                    if (openBottom) {
+                        float startX = xPos + (openLeft ? cornerRadius : 0);
+                        float width = tileSize - (openLeft ? cornerRadius : 0) - (openRight ? cornerRadius : 0);
+                        sf::RectangleShape line(sf::Vector2f({width, lineThickness}));
+                        line.setPosition({startX, yPos + tileSize - lineThickness});
+                        line.setFillColor(wallColor);
+                        window.draw(line);
+                    }
+                    if (openLeft) {
+                        float startY = yPos + (openTop ? cornerRadius : 0);
+                        float height = tileSize - (openTop ? cornerRadius : 0) - (openBottom ? cornerRadius : 0);
+                        sf::RectangleShape line(sf::Vector2f({lineThickness, height}));
+                        line.setPosition({xPos, startY});
+                        line.setFillColor(wallColor);
+                        window.draw(line);
+                    }
+                    if (openRight) {
+                        float startY = yPos + (openTop ? cornerRadius : 0);
+                        float height = tileSize - (openTop ? cornerRadius : 0) - (openBottom ? cornerRadius : 0);
+                        sf::RectangleShape line(sf::Vector2f({lineThickness, height}));
+                        line.setPosition({xPos + tileSize - lineThickness, startY});
+                        line.setFillColor(wallColor);
+                        window.draw(line);
+                    }
+
+                    
+                    if (openTop && openLeft) {
+                        window.draw(createThickArc({xPos + cornerRadius, yPos + cornerRadius}, 
+                                                    cornerRadius, lineThickness, 180.0f, 270.0f, wallColor));
+                    }
+                   
+                    if (openTop && openRight) {
+                        window.draw(createThickArc({xPos + tileSize - cornerRadius, yPos + cornerRadius}, 
+                                                    cornerRadius, lineThickness, 270.0f, 360.0f, wallColor));
+                    }
+                    
+                    if (openBottom && openLeft) {
+                        window.draw(createThickArc({xPos + cornerRadius, yPos + tileSize - cornerRadius}, 
+                                                    cornerRadius, lineThickness, 90.0f, 180.0f, wallColor));
+                    }
+                   
+                    if (openBottom && openRight) {
+                        window.draw(createThickArc({xPos + tileSize - cornerRadius, yPos + tileSize - cornerRadius}, 
+                                                    cornerRadius, lineThickness, 0.0f, 90.0f, wallColor));
+                    }
+                }
                 else if (tile == '-') {
-                    // Ghost house door
+                   
                     sf::RectangleShape door(sf::Vector2f({tileSize, tileSize / 4.0f}));
                     door.setPosition({xPos, yPos + (tileSize / 2.0f)});
-                    door.setFillColor(sf::Color(255, 182, 255)); // Pinkish door
+                    door.setFillColor(sf::Color(255, 182, 255)); 
                     window.draw(door);
                 }
             }
         }
 
-        // Display everything we just drew
+        
         window.display();
     }
 
