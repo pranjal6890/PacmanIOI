@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <algorithm>
@@ -57,7 +57,6 @@ struct Entity
   Direction currentDir = Direction::None;
   Direction queuedDir = Direction::None;
   sf::Color color;
-  int ghostIndex = -1;  // -1 for Pacman, 0-3 for ghosts
 };
 
 inline std::vector<std::string> baseMap = {
@@ -141,3 +140,4 @@ inline sf::VertexArray createThickArc(sf::Vector2f center, float radius,
   }
   return arc;
 }
+

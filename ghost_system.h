@@ -92,7 +92,7 @@ Direction getDirectionTowardTarget(sf::Vector2f currentPos, sf::Vector2f targetP
         int nextX = currX + (int)dirVecs[i].x;
         int nextY = currY + (int)dirVecs[i].y;
         
-        if (!isWall(nextX, nextY, true)) {  // isGhost=true
+        if (!isWall(nextX, nextY)) {  // Check if next tile is walkable
             sf::Vector2f nextPos(nextX * TILE_SIZE + TILE_SIZE/2, 
                                 nextY * TILE_SIZE + TILE_SIZE/2 + uiOffset);
             float newDist = std::hypot(targetPos.x - nextPos.x, targetPos.y - nextPos.y);
@@ -150,7 +150,7 @@ void updateGhosts(std::vector<Ghost>& ghosts, const Entity& pacman, float dt, fl
             int currX = (int)(ghost.entity.pos.x / TILE_SIZE);
             int currY = (int)((ghost.entity.pos.y - uiOffset) / TILE_SIZE);
             sf::Vector2f dirVec = getDirectionVector(nextDir);
-            if (isWall(currX + (int)dirVec.x, currY + (int)dirVec.y, true)) {
+            if (isWall(currX + (int)dirVec.x, currY + (int)dirVec.y)) {
                 nextDir = Direction::None;
             }
         }
@@ -159,7 +159,7 @@ void updateGhosts(std::vector<Ghost>& ghosts, const Entity& pacman, float dt, fl
         
         // Move ghost at slightly slower speed than Pacman
         float ghostSpeed = PACMAN_SPEED * 0.85f;
-        moveEntity(ghost.entity, ghostSpeed, true, dt, uiOffset, baseMap[0].size());
+        moveEntity(ghost.entity, ghostSpeed, dt, uiOffset, baseMap[0].size());
     }
 }
 

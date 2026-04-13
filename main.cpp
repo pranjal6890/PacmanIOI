@@ -120,7 +120,7 @@ int main() {
 
       // Take inputs for pacman
       handlePacmanInput(pacman);
-      moveEntity(pacman, PACMAN_SPEED, false, dt, uiOffset, mapW);
+      moveEntity(pacman, PACMAN_SPEED, dt, uiOffset, mapW);
 
       // Update ghosts AI and movement
       updateGhosts(ghosts, pacman, dt, uiOffset);
