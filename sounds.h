@@ -21,7 +21,7 @@ inline sf::SoundBuffer makeSoundBuffer(float duration,
     s[i] = (int16_t)(v * 32767.f);
   }
   sf::SoundBuffer buf;
-  buf.loadFromSamples(s.data(), n, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
+  (void)buf.loadFromSamples(s.data(), n, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
   return buf;
 }
 
@@ -85,6 +85,6 @@ inline sf::SoundBuffer makeWinSound()
     }
   }
   sf::SoundBuffer buf;
-  buf.loadFromSamples(s.data(), total, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
+  (void)buf.loadFromSamples(s.data(), total, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
   return buf;
 }

@@ -70,28 +70,12 @@ int main() {
                         5 * TILE_SIZE + TILE_SIZE / 2 + uiOffset);
 
   std::vector<sf::Vector2f> orbs = spawnOrbs(uiOffset);
+  std::vector<Powerup> powerups = spawnPowerups(uiOffset);
 
-  auto spawnPowerups = [&]() -> std::vector<Powerup> {
-    std::vector<Powerup> pups;
-    std::srand((unsigned)std::time(nullptr));
-    std::vector<sf::Vector2f> spots;
-    for (unsigned r = 0; r < baseMap.size(); ++r)
-      for (unsigned c = 0; c < baseMap[r].size(); ++c)
-        if (baseMap[r][c] != '#' && baseMap[r][c] != 'x' && baseMap[r][c] != '-')
-          spots.push_back(sf::Vector2f(c * TILE_SIZE + TILE_SIZE / 2,
-                                       r * TILE_SIZE + TILE_SIZE / 2 + uiOffset));
-    PowerupType types[] = {PowerupType::Health, PowerupType::Power, PowerupType::Shield};
-    for (auto t : types) {
-      if (spots.empty()) break;
-      int idx = std::rand() % (int)spots.size();
-      pups.push_back({spots[idx], t, true});
-      spots.erase(spots.begin() + idx);
-    }
-    return pups;
-  };
-  std::vector<Powerup> powerups = spawnPowerups();
+  bool keepPlaying = true;
 
-  auto resetGame = [&]() {
+  while (keepPlaying) {
+    // Reset game state
     pacman.pos = pacSpawn;
     pacman.currentDir = Direction::Left;
     pacman.queuedDir = Direction::Left;
@@ -103,6 +87,7 @@ int main() {
     powerTimer = 0.f;
     orbs = spawnOrbs(uiOffset);
     powerups = spawnPowerups(uiOffset);
+
     sf::Clock clock;
     GameState gameState = GameState::Playing;
     float animTime = 0.f;
@@ -116,20 +101,19 @@ int main() {
         if (ev->is<sf::Event::Closed>())
           window.close();
 
-    handlePacmanInput(pacman);
-    moveEntity(pacman, PACMAN_SPEED, false, dt, uiOffset, mapW);
+      handlePacmanInput(pacman);
+      moveEntity(pacman, PACMAN_SPEED, dt, uiOffset, mapW);
 
-    size_t orbsBefore = orbs.size();
-    collectOrbs(orbs, pacman.pos, score);
-    if (orbs.size() < orbsBefore && sBlop.getStatus() != sf::Sound::Status::Playing)
-      sBlop.play();
+      size_t orbsBefore = orbs.size();
+      collectOrbs(orbs, pacman.pos, score);
+      if (orbs.size() < orbsBefore && sBlop.getStatus() != sf::Sound::Status::Playing)
+        sBlop.play();
 
-    for (auto &pu : powerups) {
-      if (!pu.active) continue;
-      if (calcDist(pacman.pos, pu.pos) < TILE_SIZE * 0.7f) {
-        pu.active = false;
-        switch (pu.type) {
-          case PowerupType::Health:
+      for (auto &pu : powerups) {
+        if (!pu.active) continue;
+        if (calcDist(pacman.pos, pu.pos) < TILE_SIZE * 0.7f) {
+          pu.active = false;
+          if (pu.type == PowerupType::Health) {
             score += 50;  
             sPow.play();
           }
@@ -146,30 +130,36 @@ int main() {
         }
       }
 
-    if (hasPower) { powerTimer -= dt; if (powerTimer <= 0.f) hasPower = false; }
-    if (hasShield) { shieldTimer -= dt; if (shieldTimer <= 0.f) hasShield = false; }
+      if (hasPower) { powerTimer -= dt; if (powerTimer <= 0.f) hasPower = false; }
+      if (hasShield) { shieldTimer -= dt; if (shieldTimer <= 0.f) hasShield = false; }
+
+      // Check win condition
+      if (orbs.empty()) {
+        gameState = GameState::GameWon;
+        sWin.play();
+      }
 
       window.clear(sf::Color::Black);
 
       drawArena(window, uiOffset, animTime);
 
-    drawOrbs(window, orbs);
+      drawOrbs(window, orbs);
 
-    for (auto &pu : powerups) {
-      if (!pu.active) continue;
-      switch (pu.type) {
-        case PowerupType::Health: drawHealthPowerup(window, pu.pos, animTime); break;
-        case PowerupType::Power:  drawPowerPowerup(window, pu.pos, animTime);  break;
-        case PowerupType::Shield: drawShieldPowerup(window, pu.pos, animTime); break;
+      for (auto &pu : powerups) {
+        if (!pu.active) continue;
+        switch (pu.type) {
+          case PowerupType::Health: drawHealthPowerup(window, pu.pos, animTime); break;
+          case PowerupType::Power:  drawPowerPowerup(window, pu.pos, animTime);  break;
+          case PowerupType::Shield: drawShieldPowerup(window, pu.pos, animTime); break;
+        }
       }
-    }
 
-    drawPacman(window, pacman.pos, pacman.color, pacman.currentDir, animTime);
+      drawPacman(window, pacman.pos, pacman.color, pacman.currentDir, animTime);
 
-    if (hasShield)
-      drawShieldAura(window, pacman.pos, animTime);
+      if (hasShield)
+        drawShieldAura(window, pacman.pos, animTime);
 
-    drawScore(window, font, score);
+      drawScore(window, font, score);
 
       window.display();
     }

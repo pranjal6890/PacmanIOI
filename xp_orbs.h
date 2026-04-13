@@ -22,7 +22,7 @@ inline std::vector<sf::Vector2f> spawnOrbs(float uiOffset) {
 inline void drawOrbs(sf::RenderWindow &window, const std::vector<sf::Vector2f> &orbs) {
   sf::CircleShape o(3.f);
   o.setFillColor(sf::Color::White);
-  o.setOrigin(3, 3);
+  o.setOrigin({3.f, 3.f});
   
   for (int i = 0; i < orbs.size(); i++) {
     o.setPosition(orbs[i]);
@@ -31,12 +31,9 @@ inline void drawOrbs(sf::RenderWindow &window, const std::vector<sf::Vector2f> &
 }
 
 inline void drawScore(sf::RenderWindow &window, const sf::Font &font, int score) {
-  sf::Text sc;
-  sc.setFont(font);
-  sc.setString("Score: " + std::to_string(score));
-  sc.setCharacterSize(24);
+  sf::Text sc(font, "Score: " + std::to_string(score), 24);
   sc.setFillColor(sf::Color::White);
-  sc.setPosition(10, 5);
+  sc.setPosition({10.f, 5.f});
   
   window.draw(sc);
 }
