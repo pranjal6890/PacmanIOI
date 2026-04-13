@@ -2,7 +2,8 @@
 #include "globals.h"
 
 inline void drawHealthPowerup(sf::RenderWindow &window, sf::Vector2f pos,
-                              float animTime) {
+                              float animTime)
+{
   float s = 5.0f * (1.0f + 0.18f * std::sin(animTime * 5.0f));
   window.draw(createThickArc(pos, s * 1.6f, 2.5f, 0.0f, 360.0f,
                              sf::Color(255, 80, 80, 120)));
@@ -22,18 +23,21 @@ inline void drawHealthPowerup(sf::RenderWindow &window, sf::Vector2f pos,
 }
 
 inline void drawPowerPowerup(sf::RenderWindow &window, sf::Vector2f pos,
-                             float animTime) {
+                             float animTime)
+{
   float s = 5.5f * (1.0f + 0.15f * std::sin(animTime * 6.0f));
   window.draw(createThickArc(pos, s * 1.6f, 2.5f, 0.0f, 360.0f,
                              sf::Color(180, 80, 255, 130)));
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 4; ++i)
+  {
     float angle = animTime * 3.0f + i * (2 * 3.14159f / 4.0f);
     sf::Vector2f sp = pos + sf::Vector2f(std::cos(angle) * s * 0.9f,
                                          std::sin(angle) * s * 0.9f);
     sf::VertexArray star(sf::PrimitiveType::Triangles, 24);
     sf::Color sc(255, 220, 0);
     float sr = s * 0.38f;
-    for (int j = 0; j < 8; ++j) {
+    for (int j = 0; j < 8; ++j)
+    {
       float a1 = j * 2 * 3.14159f / 8.0f,
             a2 = (j + 1) * 2 * 3.14159f / 8.0f;
       float r1 = (j % 2 == 0) ? sr : sr * 0.45f,
@@ -53,9 +57,9 @@ inline void drawPowerPowerup(sf::RenderWindow &window, sf::Vector2f pos,
   window.draw(dot);
 }
 
-
 inline void drawShieldPowerup(sf::RenderWindow &window, sf::Vector2f pos,
-                              float animTime) {
+                              float animTime)
+{
   float s = 6.0f * (1.0f + 0.15f * std::sin(animTime * 4.5f));
   window.draw(createThickArc(pos, s * 1.6f, 2.5f, 0.0f, 360.0f,
                              sf::Color(60, 255, 120, 130)));
@@ -81,15 +85,16 @@ inline void drawShieldPowerup(sf::RenderWindow &window, sf::Vector2f pos,
   window.draw(bar);
 }
 
-
 inline void drawShieldAura(sf::RenderWindow &window, sf::Vector2f pos,
-                           float animTime) {
+                           float animTime)
+{
   float r = 11.0f * (1.0f + 0.12f * std::sin(animTime * 8.0f));
   window.draw(createThickArc(pos, r + 3.0f, 3.0f, 0.0f, 360.0f,
                              sf::Color(60, 255, 120, 70)));
   window.draw(createThickArc(pos, r, 2.5f, 0.0f, 360.0f,
                              sf::Color(80, 255, 140, 220)));
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 6; ++i)
+  {
     float angle = animTime * 1.5f + i * (2 * 3.14159f / 6.0f);
     sf::CircleShape node(2.0f);
     node.setOrigin({2, 2});

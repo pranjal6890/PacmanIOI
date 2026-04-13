@@ -18,7 +18,7 @@ inline void handlePacmanInput(Entity &pacman)
     pacman.queuedDir = Direction::Right;
 }
 
-inline void moveEntity(Entity &e, float spd, bool isGhost, float dt,
+inline void moveEntity(Entity &e, float spd, float dt,
                        float uiOffset, unsigned mapW)
 {
   int gx = (int)(e.pos.x / TILE_SIZE);
@@ -36,15 +36,12 @@ inline void moveEntity(Entity &e, float spd, bool isGhost, float dt,
       (towards && calcDist(e.pos, tc) <= spd * dt))
   {
     e.pos = tc;
-    if (!isGhost)
-    {
-      auto qv = getDirectionVector(e.queuedDir);
-      if (!isWall(gx + (int)qv.x, gy + (int)qv.y))
-        e.currentDir = e.queuedDir;
-      else if (isWall(gx + (int)getDirectionVector(e.currentDir).x,
-                      gy + (int)getDirectionVector(e.currentDir).y))
-        e.currentDir = Direction::None;
-    }
+    auto qv = getDirectionVector(e.queuedDir);
+    if (!isWall(gx + (int)qv.x, gy + (int)qv.y))
+      e.currentDir = e.queuedDir;
+    else if (isWall(gx + (int)getDirectionVector(e.currentDir).x,
+                    gy + (int)getDirectionVector(e.currentDir).y))
+      e.currentDir = Direction::None;
     e.pos += getDirectionVector(e.currentDir) * spd * dt;
   }
   else

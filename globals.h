@@ -57,12 +57,7 @@ struct Entity
   Direction currentDir = Direction::None;
   Direction queuedDir = Direction::None;
   sf::Color color;
-  int mood = 0;
-  int ghostIndex = -1;
-  bool confused = false;
 };
-
-inline bool ghostHouseOpen = true;
 
 inline std::vector<std::string> baseMap = {
     "############################", "#            ##            #",
@@ -82,7 +77,7 @@ inline std::vector<std::string> baseMap = {
     "# ########## ## ########## #", "#                          #",
     "############################"};
 
-inline bool isWall(int x, int y, bool isGhost = false, bool isEscaping = false)
+inline bool isWall(int x, int y)
 {
   int mapW = (int)baseMap[0].size();
 
@@ -94,10 +89,7 @@ inline bool isWall(int x, int y, bool isGhost = false, bool isEscaping = false)
   if (y < 0 || y >= (int)baseMap.size())
     return true;
 
-  if (baseMap[y][x] == '-')
-    return !(isGhost && (ghostHouseOpen || isEscaping));
-
-  return baseMap[y][x] == '#';
+  return baseMap[y][x] == '#' || baseMap[y][x] == '-';
 }
 
 inline sf::Vector2f getDirectionVector(Direction dir)

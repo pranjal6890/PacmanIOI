@@ -1,8 +1,5 @@
 #include "globals.h"
 
-//  portal ke graphics ko draw kiya
-// This function visualizes the teleportation tunnels on the sides of the map.
-
 void drawPortal(sf::RenderWindow &window, sf::Vector2f center, float animTime)
 {
 
@@ -29,12 +26,10 @@ void drawPortal(sf::RenderWindow &window, sf::Vector2f center, float animTime)
                   (uint8_t)(r.cA.g * (1 - t) + r.cB.g * t),
                   (uint8_t)(r.cA.b * (1 - t) + r.cB.b * t));
 
-    // Draw an arc representing a full ring using our createThickArc utility
     window.draw(
         createThickArc(center, r.radius, r.thickness, 0.0f, 360.0f, col));
   }
 
-  // Draw the bright glowing dot in the center of the portal
   float dotR = 3.0f * pulse;
   sf::CircleShape dot(dotR);
   dot.setOrigin(sf::Vector2f(dotR, dotR));
@@ -45,37 +40,31 @@ void drawPortal(sf::RenderWindow &window, sf::Vector2f center, float animTime)
   window.draw(dot);
 }
 
-//  walls, ghost ka door and portals ka code
-// drawArena interprets the baseMap grid array and systematically renders walls,
-// applying smooth inner-corners based on adjacent tiles.
 void drawArena(sf::RenderWindow &window, float uiOffset, float animTime)
 {
   unsigned mapW = (unsigned)baseMap[0].size();
   unsigned mapH = (unsigned)baseMap.size();
-  sf::Color wallColor(33, 33, 255); // Classic deep blue arcade wall color
+  sf::Color wallColor(33, 33, 255); 
 
   for (unsigned row = 0; row < mapH; ++row)
   {
     for (unsigned col = 0; col < mapW; ++col)
     {
       char tile = baseMap[row][col];
-      // Convert Map Grid Coordinates to Window Pixel Coordinates
       float xp = col * TILE_SIZE;
       float yp = row * TILE_SIZE + uiOffset;
 
       if (tile == '#')
       {
-        float lt = 2.f, cr = 8.f; // Line Thickness and Corner Radius
+        float lt = 2.f, cr = 8.f; 
 
-        bool oT = (row > 0 && baseMap[row - 1][col] != '#'); // Open Top
+        bool oT = (row > 0 && baseMap[row - 1][col] != '#'); 
         bool oB =
-            (row < mapH - 1 && baseMap[row + 1][col] != '#'); // Open Bottom
-        bool oL = (col > 0 && baseMap[row][col - 1] != '#');  // Open Left
+            (row < mapH - 1 && baseMap[row + 1][col] != '#'); 
+        bool oL = (col > 0 && baseMap[row][col - 1] != '#');  
         bool oR =
-            (col < mapW - 1 && baseMap[row][col + 1] != '#'); // Open Right
+            (col < mapW - 1 && baseMap[row][col + 1] != '#'); 
 
-        // If open space exists on top, draw a wall outline at the top of the
-        // tile
         if (oT)
         {
           sf::RectangleShape l(
@@ -110,7 +99,6 @@ void drawArena(sf::RenderWindow &window, float uiOffset, float animTime)
           l.setFillColor(wallColor);
           window.draw(l);
         }
-        // The thick arc creates smooth connecting curves on inner-elbows.
         if (oT && oL)
           window.draw(createThickArc(sf::Vector2f(xp + cr, yp + cr), cr, lt,
                                      180, 270, wallColor));
@@ -127,18 +115,16 @@ void drawArena(sf::RenderWindow &window, float uiOffset, float animTime)
       }
       else if (tile == '-')
       {
-        // Draw the gate/door to the Ghost House
         sf::RectangleShape d(sf::Vector2f(TILE_SIZE, TILE_SIZE / 4.f));
         d.setPosition(sf::Vector2f(xp, yp + TILE_SIZE / 2.f));
-        d.setFillColor(sf::Color(255, 182, 255)); // Pink Door Color
+        d.setFillColor(sf::Color(255, 182, 255)); 
         window.draw(d);
       }
     }
   }
 
-  // Portals at the horizontal tunnel exits
   float py = 14 * TILE_SIZE + TILE_SIZE / 2 + uiOffset;
   drawPortal(window, sf::Vector2f(TILE_SIZE / 2.f, py), animTime);
   drawPortal(window, sf::Vector2f((mapW - 1) * TILE_SIZE + TILE_SIZE / 2.f, py),
              animTime);
-}
+}
