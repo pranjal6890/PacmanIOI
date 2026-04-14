@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Audio.hpp>
+#include <iostream>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -21,7 +22,9 @@ inline sf::SoundBuffer makeSoundBuffer(float duration,
     s[i] = (int16_t)(v * 32767.f);
   }
   sf::SoundBuffer buf;
-  (void)buf.loadFromSamples(s.data(), n, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
+  if (!buf.loadFromSamples(s.data(), n, 1, SAMPLE_RATE, {sf::SoundChannel::Mono})) {
+    std::cerr << "Failed to load sound buffer from samples" << std::endl;
+  }
   return buf;
 }
 
@@ -85,6 +88,8 @@ inline sf::SoundBuffer makeWinSound()
     }
   }
   sf::SoundBuffer buf;
-  (void)buf.loadFromSamples(s.data(), total, 1, SAMPLE_RATE, {sf::SoundChannel::Mono});
+  if (!buf.loadFromSamples(s.data(), total, 1, SAMPLE_RATE, {sf::SoundChannel::Mono})) {
+    std::cerr << "Failed to load win sound buffer from samples" << std::endl;
+  }
   return buf;
 }
