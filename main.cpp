@@ -23,7 +23,7 @@
 // sounds wali file ko include kiya (procedural audio)
 #include "sounds.h"
 
-#include "ghost_system.h"
+#include "ghostVisuals.h"
 
 // victory_screen wali file ko include kiya (end screen UI)
 #include "victory_screen.h"
@@ -157,18 +157,17 @@ int main() {
           pu.active = false;
           switch (pu.type) {
             case PowerupType::Health:
-              score += 50;  // bonus points
               sPow.play();
               break;
             case PowerupType::Power:
               hasPower = true;
               powerTimer = 8.0f;
-              frightenGhosts(ghosts, 8.0f);  // Ghosts become frightened!
+              frightenGhosts(ghosts, 8.0f);  // Ghosts become frightened visually
               sPow.play();
               break;
             case PowerupType::Shield:
               hasShield = true;
-              shieldTimer = 10.0f;  // 10 sec shield
+              shieldTimer = 10.0f;  // 10 sec shield visual
               sShld.play();
               break;
           }
@@ -176,7 +175,7 @@ int main() {
       }
 
       // Tick powerup timers
-      if (hasPower) { powerTimer -= dt; if (powerTimer <= 0.f) {hasPower = false; unfrightenGhosts(ghosts); } } // Ghosts return to normal }
+      if (hasPower) { powerTimer -= dt; if (powerTimer <= 0.f) {hasPower = false; unfrightenGhosts(ghosts); } } // Ghosts return to normal
       if (hasShield) { shieldTimer -= dt; if (shieldTimer <= 0.f) hasShield = false; }
 
       window.clear(sf::Color::Black);
@@ -199,7 +198,7 @@ int main() {
       // Animated chomping Pac-Man draw
       drawPacman(window, pacman.pos, pacman.color, pacman.currentDir, animTime);
 
-       // Draw ghosts
+      // Draw ghosts
       drawGhosts(window, ghosts, animTime);
 
       // Draw shield aura around Pac-Man if active
