@@ -27,13 +27,12 @@
 #include "ghost_visuals.h"
 
 // ghosts logic
-#include "ghosts_com.h"
+#include "ghosts.h"
 
 // victory_screen wali file ko include kiya (end screen UI)
 #include "victory_screen.h"
 
-int main()
-{
+int main() {
   unsigned mapW = (unsigned)baseMap[0].size();
   unsigned mapH = (unsigned)baseMap.size();
   const float uiOffset = 40.0f; // Leaves room at the top for score/lives UI
@@ -51,7 +50,8 @@ int main()
   sf::SoundBuffer bBlop = makeBlopSound(), bPow = makePowerupSound(),
                   bShld = makeShieldSound(), bEat = makeGhostEatSound(),
                   bDth = makeDeathSound(), bWin = makeWinSound();
-  sf::Sound sBlop(bBlop), sPow(bPow), sShld(bShld), sEat(bEat), sDth(bDth), sWin(bWin);
+  sf::Sound sBlop(bBlop), sPow(bPow), sShld(bShld), sEat(bEat), sDth(bDth),
+      sWin(bWin);
 
   // game starts
   Entity pacman;
@@ -70,21 +70,22 @@ int main()
   std::vector<sf::Vector2f> orbs = spawnOrbs(uiOffset);
 
   // Spawn powerups on a few random walkable tiles
-  auto spawnPowerups = [&]() -> std::vector<Powerup>
-  {
+  auto spawnPowerups = [&]() -> std::vector<Powerup> {
     std::vector<Powerup> pups;
     std::srand((unsigned)std::time(nullptr));
     // Collect walkable positions
     std::vector<sf::Vector2f> spots;
     for (unsigned r = 0; r < baseMap.size(); ++r)
       for (unsigned c = 0; c < baseMap[r].size(); ++c)
-        if (baseMap[r][c] != '#' && baseMap[r][c] != 'x' && baseMap[r][c] != '-')
-          spots.push_back(sf::Vector2f(c * TILE_SIZE + TILE_SIZE / 2,
-                                       r * TILE_SIZE + TILE_SIZE / 2 + uiOffset));
+        if (baseMap[r][c] != '#' && baseMap[r][c] != 'x' &&
+            baseMap[r][c] != '-')
+          spots.push_back(
+              sf::Vector2f(c * TILE_SIZE + TILE_SIZE / 2,
+                           r * TILE_SIZE + TILE_SIZE / 2 + uiOffset));
     // Place one of each type at random positions
-    PowerupType types[] = {PowerupType::Health, PowerupType::Power, PowerupType::Shield};
-    for (auto t : types)
-    {
+    PowerupType types[] = {PowerupType::Health, PowerupType::Power,
+                           PowerupType::Shield};
+    for (auto t : types) {
       if (spots.empty())
         break;
       int idx = std::rand() % (int)spots.size();
@@ -95,8 +96,7 @@ int main()
   };
   std::vector<Powerup> powerups = spawnPowerups();
 
-  auto resetGame = [&]()
-  {
+  auto resetGame = [&]() {
     pacman.pos = pacSpawn;
     pacman.currentDir = Direction::Left;
     pacman.queuedDir = Direction::Left;
@@ -114,16 +114,14 @@ int main()
 
   // Outer loop: supports Play Again functionality
   bool keepPlaying = true;
-  while (keepPlaying)
-  {
+  while (keepPlaying) {
     resetGame();
     sf::Clock clock;
     GameState gameState = GameState::Playing;
     float animTime = 0.f;
 
     // Inner loop: the actual game
-    while (window.isOpen() && gameState == GameState::Playing)
-    {
+    while (window.isOpen() && gameState == GameState::Playing) {
       float dt = clock.restart().asSeconds();
       if (dt > 0.1f)
         dt = 0.1f;
@@ -140,12 +138,11 @@ int main()
       // Update Ghosts
       updateGhosts(ghosts, pacman, dt, uiOffset, animTime);
 
-      bool hitByGhost = checkGhostCollision(pacman, ghosts, hasShield, hasPower, sEat, sDth, score);
-      if (hitByGhost)
-      {
+      bool hitByGhost = checkGhostCollision(pacman, ghosts, hasShield, hasPower,
+                                            sEat, sDth, score);
+      if (hitByGhost) {
         --lives;
-        if (lives <= 0)
-        {
+        if (lives <= 0) {
           gameState = GameState::GameOver;
           break;
         }
@@ -155,27 +152,24 @@ int main()
       // Collect orbs that Pac-Man touches and play blop sound
       size_t orbsBefore = orbs.size();
       collectOrbs(orbs, pacman.pos, score);
-      if (orbs.size() < orbsBefore && sBlop.getStatus() != sf::Sound::Status::Playing)
+      if (orbs.size() < orbsBefore &&
+          sBlop.getStatus() != sf::Sound::Status::Playing)
         sBlop.play();
 
       // Win condition: all orbs collected
-      if (orbs.empty())
-      {
+      if (orbs.empty()) {
         gameState = GameState::GameWon;
         sWin.play();
         break;
       }
 
       // Powerup pickup logic
-      for (auto &pu : powerups)
-      {
+      for (auto &pu : powerups) {
         if (!pu.active)
           continue;
-        if (calcDist(pacman.pos, pu.pos) < TILE_SIZE * 0.7f)
-        {
+        if (calcDist(pacman.pos, pu.pos) < TILE_SIZE * 0.7f) {
           pu.active = false;
-          switch (pu.type)
-          {
+          switch (pu.type) {
           case PowerupType::Health:
             if (lives < 3)
               ++lives;
@@ -197,16 +191,13 @@ int main()
       }
 
       // Tick powerup timers
-      if (hasPower)
-      {
+      if (hasPower) {
         powerTimer -= dt;
-        if (powerTimer <= 0.f)
-        {
+        if (powerTimer <= 0.f) {
           hasPower = false;
         }
       }
-      if (hasShield)
-      {
+      if (hasShield) {
         shieldTimer -= dt;
         if (shieldTimer <= 0.f)
           hasShield = false;
@@ -220,12 +211,10 @@ int main()
       drawOrbs(window, orbs);
 
       // Draw powerups
-      for (auto &pu : powerups)
-      {
+      for (auto &pu : powerups) {
         if (!pu.active)
           continue;
-        switch (pu.type)
-        {
+        switch (pu.type) {
         case PowerupType::Health:
           drawHealthPowerup(window, pu.pos, animTime);
           break;
@@ -255,31 +244,24 @@ int main()
     }
 
     // Show victory / game-over screen if window is still open
-    if (window.isOpen())
-    {
+    if (window.isOpen()) {
       bool won = (gameState == GameState::GameWon);
       EndScreen endScreen(font, won);
       EndChoice choice = endScreen.run(window);
 
-      if (choice == EndChoice::PlayAgain)
-      {
+      if (choice == EndChoice::PlayAgain) {
         // Re-open the window if it was closed by the end screen
-        if (!window.isOpen())
-        {
-          window.create(sf::VideoMode(sf::Vector2u(
-                            mapW * (unsigned)TILE_SIZE,
-                            mapH * (unsigned)TILE_SIZE + (unsigned)uiOffset)),
+        if (!window.isOpen()) {
+          window.create(sf::VideoMode(sf::Vector2u(mapW * (unsigned)TILE_SIZE,
+                                                   mapH * (unsigned)TILE_SIZE +
+                                                       (unsigned)uiOffset)),
                         "Pac-Man Core");
         }
         continue; // restart the outer loop
-      }
-      else
-      {
+      } else {
         keepPlaying = false;
       }
-    }
-    else
-    {
+    } else {
       keepPlaying = false;
     }
   }
