@@ -1,6 +1,15 @@
 #pragma once
+// ─────────────────────────────────────────────
+//  powerups.h
+//  Powerup drawing and pickup logic.
+//  WEEK 3-4: Power-ups subsystem
+// ─────────────────────────────────────────────
+
 #include "globals.h"
 
+// ─────────────────────────────────────────────
+//  Powerup: HEART
+// ─────────────────────────────────────────────
 inline void drawHealthPowerup(sf::RenderWindow &window, sf::Vector2f pos,
                               float animTime)
 {
@@ -22,6 +31,9 @@ inline void drawHealthPowerup(sf::RenderWindow &window, sf::Vector2f pos,
   window.draw(tri);
 }
 
+// ─────────────────────────────────────────────
+//  Powerup: STARS (Power)
+// ─────────────────────────────────────────────
 inline void drawPowerPowerup(sf::RenderWindow &window, sf::Vector2f pos,
                              float animTime)
 {
@@ -38,8 +50,7 @@ inline void drawPowerPowerup(sf::RenderWindow &window, sf::Vector2f pos,
     float sr = s * 0.38f;
     for (int j = 0; j < 8; ++j)
     {
-      float a1 = j * 2 * 3.14159f / 8.0f,
-            a2 = (j + 1) * 2 * 3.14159f / 8.0f;
+      float a1 = j * 2 * 3.14159f / 8.0f, a2 = (j + 1) * 2 * 3.14159f / 8.0f;
       float r1 = (j % 2 == 0) ? sr : sr * 0.45f,
             r2 = ((j + 1) % 2 == 0) ? sr : sr * 0.45f;
       star[j * 3 + 0] = sf::Vertex{sp, sc};
@@ -57,6 +68,9 @@ inline void drawPowerPowerup(sf::RenderWindow &window, sf::Vector2f pos,
   window.draw(dot);
 }
 
+// ─────────────────────────────────────────────
+//  Powerup: SHIELD
+// ─────────────────────────────────────────────
 inline void drawShieldPowerup(sf::RenderWindow &window, sf::Vector2f pos,
                               float animTime)
 {
@@ -85,21 +99,24 @@ inline void drawShieldPowerup(sf::RenderWindow &window, sf::Vector2f pos,
   window.draw(bar);
 }
 
+// ─────────────────────────────────────────────
+//  Shield aura (drawn around Pac-Man when shielded)
+// ─────────────────────────────────────────────
 inline void drawShieldAura(sf::RenderWindow &window, sf::Vector2f pos,
                            float animTime)
 {
   float r = 11.0f * (1.0f + 0.12f * std::sin(animTime * 8.0f));
   window.draw(createThickArc(pos, r + 3.0f, 3.0f, 0.0f, 360.0f,
                              sf::Color(60, 255, 120, 70)));
-  window.draw(createThickArc(pos, r, 2.5f, 0.0f, 360.0f,
-                             sf::Color(80, 255, 140, 220)));
+  window.draw(
+      createThickArc(pos, r, 2.5f, 0.0f, 360.0f, sf::Color(80, 255, 140, 220)));
   for (int i = 0; i < 6; ++i)
   {
     float angle = animTime * 1.5f + i * (2 * 3.14159f / 6.0f);
     sf::CircleShape node(2.0f);
     node.setOrigin({2, 2});
-    node.setPosition(pos + sf::Vector2f(std::cos(angle) * r,
-                                        std::sin(angle) * r));
+    node.setPosition(pos +
+                     sf::Vector2f(std::cos(angle) * r, std::sin(angle) * r));
     node.setFillColor(sf::Color(180, 255, 200));
     window.draw(node);
   }
