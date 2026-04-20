@@ -90,6 +90,11 @@ inline bool isWall(int x, int y, bool isGhost = false)
     if (baseMap[y][x] == '-') {
       return false;
     }
+    if (y >= 12 && y <= 15 && x >= 10 && x <= 17) {
+      if (baseMap[12][13] == '#') {
+        return true;
+      }
+    }
   }
 
   if (baseMap[y][x] == '#') {

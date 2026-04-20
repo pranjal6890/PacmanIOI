@@ -312,6 +312,24 @@ inline void updateGhosts(std::vector<std::shared_ptr<Ghost>> &ghosts,
 
     ghost_index = ghost_index + 1;
   }
+
+  if (baseMap[12][13] == '-') {
+    bool all_out = true;
+    int check_idx = 0;
+    while (check_idx < (int)ghosts.size()) {
+      int check_gx = (int)(ghosts[check_idx]->pos.x / TILE_SIZE);
+      int check_gy = (int)((ghosts[check_idx]->pos.y - uiOffset) / TILE_SIZE);
+      if (check_gy >= 12 && check_gy <= 15 && check_gx >= 10 && check_gx <= 17) {
+        all_out = false;
+      }
+      check_idx = check_idx + 1;
+    }
+
+    if (all_out == true) {
+      baseMap[12][13] = '#';
+      baseMap[12][14] = '#';
+    }
+  }
 }
 
 inline bool checkGhostCollision(Entity &pacman,
